@@ -6,6 +6,7 @@ import com.example.superhero.model.SuperHero;
 import com.example.superhero.repository.SuperHeroRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import springfox.documentation.annotations.Cacheable;
 
 import java.util.List;
 import java.util.Optional;
@@ -40,6 +41,7 @@ public class SuperHeroService {
         return superHeroRepository.findAll();
     }
 
+    @Cacheable("superhero")
     public SuperHero findSuperHeroById(final Long id){
         return superHeroRepository.findById(id)
                 .orElseThrow(() -> new SuperHeroNotFoundException(id));

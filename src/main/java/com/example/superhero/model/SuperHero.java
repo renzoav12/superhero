@@ -1,6 +1,7 @@
 package com.example.superhero.model;
 
 import com.sun.istack.NotNull;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 
 import javax.persistence.*;
@@ -8,6 +9,7 @@ import java.util.Objects;
 
 @Entity
 @Data
+@AllArgsConstructor
 public class SuperHero {
 
     @Id
@@ -20,10 +22,6 @@ public class SuperHero {
     @NotNull
     private String superHeroName;
 
-    public SuperHero(Long id, String superHeroName) {
-        this.id = id;
-        this.superHeroName = superHeroName;
-    }
 
     public SuperHero(){
 
