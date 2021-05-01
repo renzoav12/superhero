@@ -57,14 +57,16 @@ public class SuperHeroFacade {
 
     private void saveSuperHero(final SuperHero superHero, final SuperHeroRequest superHeroRequest) {
 
-        SuperHeroRequest superHeroUpdate =
-                new SuperHeroRequest(superHeroRequest.getFirstName() == null
+        SuperHeroRequest superHeroUpdate = getHeroRequest(superHero, superHeroRequest);
+        superHeroService.updateSuperHero(superHero.getId(), superHeroUpdate);
+
+    }
+
+    private SuperHeroRequest getHeroRequest(SuperHero superHero, SuperHeroRequest superHeroRequest) {
+        return new SuperHeroRequest(superHeroRequest.getFirstName() == null
                         ? superHero.getFirstName() : superHeroRequest.getFirstName(),
                         superHeroRequest.getSuperHeroName() == null ? superHero.getSuperHeroName()
                                 : superHeroRequest.getSuperHeroName());
-
-        superHeroService.updateSuperHero(superHero.getId(), superHeroUpdate);
-
     }
 
     private SuperHero getOptionalSuperHero(final Optional<SuperHero> superHeroOptional, final Long superHeroId) {
@@ -72,8 +74,7 @@ public class SuperHeroFacade {
         if (superHeroOptional.isEmpty()) {
             throw new SuperHeroNotFoundException(superHeroId);
         }
-        SuperHero superHero = superHeroOptional.get();
-        return superHero;
+        return  superHeroOptional.get();
     }
 
 

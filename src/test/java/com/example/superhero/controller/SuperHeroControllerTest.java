@@ -1,55 +1,96 @@
 package com.example.superhero.controller;
 
-import com.example.superhero.SuperheroApplication;
+import com.example.superhero.dto.SuperHeroDTO;
+import com.example.superhero.dto.SuperHeroesDTO;
 import com.example.superhero.facade.SuperHeroFacade;
 import com.example.superhero.model.SuperHero;
-import com.example.superhero.repository.SuperHeroRepository;
-import com.example.superhero.service.SuperHeroService;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.SneakyThrows;
+import org.junit.Before;
 import org.junit.Test;
-import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Assertions;
 import org.junit.runner.RunWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.MockitoAnnotations;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.MediaType;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.test.web.servlet.ResultActions;
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @RunWith(SpringRunner.class)
-@WebMvcTest(SuperheroApplication.class)
+@WebMvcTest(SuperHeroController.class)
 public class SuperHeroControllerTest {
 
+    @Autowired
     private MockMvc mockMvc;
 
-    @Mock
+    @MockBean
     private SuperHeroFacade superHeroFacade;
 
-    @InjectMocks
-    private SuperHeroController superHeroController;
+    private ObjectMapper mapper;
 
-    @BeforeEach
-    public void init() {
-        MockitoAnnotations.initMocks(this);
-        mockMvc = MockMvcBuilders.standaloneSetup(superHeroController).build();
+    @Before
+    public void setup() throws Exception {
+        mapper = new ObjectMapper();
     }
 
     @Test
-    private void getAllSuperHeroes() {
+    @SneakyThrows
+    public void whenGetAllSuperHeroesThenReturnListOfSuperHeroes() {
+        List<SuperHeroDTO> superHeroes = getHeroes()
+                .stream().map(superHero -> new SuperHeroDTO(superHero.getId(),superHero.getFirstName(),
+                        superHero.getSuperHeroName())).collect(Collectors.toList());
 
+        // return array of superheroes size 3
+        Mockito.when(superHeroFacade.getSuperHeroes()).thenReturn(new SuperHeroesDTO(superHeroes));
+
+
+        ResultActions resultActions = mockMvc.perform(MockMvcRequestBuilders.get("/api/superHeroes")
+                .accept(MediaType.APPLICATION_JSON_VALUE))
+                .andExpect(status().isOk());
+
+        SuperHeroesDTO response = mapper.readValue(resultActions.andReturn()
+                .getResponse().getContentAsString(), SuperHeroesDTO.class);
+
+        Assertions.assertEquals(response.getSuperHeroes().size(), 3);
+        Assertions.assertEquals(response.getSuperHeroes().get(0).getSuperHeroName(), "Spiderman");
     }
+
 
     @Test
-    private void getSuperHeroById() {
+    @SneakyThrows
+    public void whenGeSuperHeroByIdThenReturnAnSuperHero() {
 
+        Mockito.when(superHeroFacade.getSuperHeroById(Mockito.anyLong()))
+                .thenReturn(new SuperHeroDTO(1l, "Peter", "Spiderman"));
+
+
+        ResultActions resultActions = mockMvc.perform(MockMvcRequestBuilders.get("/api/superHeroes/1")
+                .accept(MediaType.APPLICATION_JSON_VALUE))
+                .andExpect(status().isOk());
+
+        SuperHeroDTO response = mapper.readValue(resultActions.andReturn()
+                .getResponse().getContentAsString(), SuperHeroDTO.class);
+
+        Assertions.assertEquals(response.getFirstName(), "Peter");
+        Assertions.assertEquals(response.getSuperHeroName(), "Spiderman");
     }
 
 
-    @Test
-    private void updateSuperHero() {
 
+    private List<SuperHero> getHeroes() {
+        List<SuperHero> superheroList = new ArrayList<SuperHero>();
+        superheroList.add(new SuperHero(1L, "Pablo", "Spiderman"));
+        superheroList.add(new SuperHero(2L, "Martin", "Superman"));
+        superheroList.add(new SuperHero(3L, "Manolo", "Manolito el dormido"));
+        return superheroList;
     }
-
 
 }
