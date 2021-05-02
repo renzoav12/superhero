@@ -42,6 +42,8 @@ public class SuperHeroControllerTest {
         mapper = new ObjectMapper();
     }
 
+    private static final String FILTER_NAME_MATCH = "man";
+
     @Test
     @SneakyThrows
     public void whenGetAllSuperHeroesThenReturnListOfSuperHeroes() {
@@ -96,7 +98,7 @@ public class SuperHeroControllerTest {
 
 
         ResultActions resultActions = mockMvc.perform(MockMvcRequestBuilders
-                .get("/api/superHeroes/filterBy/man")
+                .get("/api/superHeroes/filterBy/" + FILTER_NAME_MATCH)
                 .accept(MediaType.APPLICATION_JSON_VALUE))
                 .andExpect(status().isOk());
 

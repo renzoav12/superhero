@@ -1,6 +1,5 @@
 package com.example.superhero.integration;
 
-
 import com.example.superhero.dto.SuperHeroDTO;
 import com.example.superhero.dto.SuperHeroRequest;
 import com.example.superhero.repository.SuperHeroRepository;
@@ -36,7 +35,7 @@ public class ConcurrencyIntegrationTest {
     private ObjectMapper mapper;
 
     @Before
-    public void setup() throws Exception {
+    public void setup() {
         this.mockMvc = MockMvcBuilders.webAppContextSetup(this.wac).build();
         mapper = new ObjectMapper();
     }
