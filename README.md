@@ -1,4 +1,4 @@
-# superHeroAPI
+# superHero API
 
 SuperHero API REST manage a ABM of SuperHeroes.
 This Application is development with JAVA & Spring Boot 2. 
