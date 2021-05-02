@@ -2,6 +2,7 @@ package com.example.superhero.controller;
 
 import com.example.superhero.dto.SuperHeroDTO;
 import com.example.superhero.dto.SuperHeroesDTO;
+import com.example.superhero.exception.SuperHeroNotFoundException;
 import com.example.superhero.facade.SuperHeroFacade;
 import com.example.superhero.model.SuperHero;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -67,7 +68,6 @@ public class SuperHeroControllerTest {
     @Test
     @SneakyThrows
     public void whenGeSuperHeroByIdThenReturnAnSuperHero() {
-
         Mockito.when(superHeroFacade.getSuperHeroById(Mockito.anyLong()))
                 .thenReturn(new SuperHeroDTO(1l, "Peter", "Spiderman"));
 
@@ -83,6 +83,41 @@ public class SuperHeroControllerTest {
         Assertions.assertEquals(response.getSuperHeroName(), "Spiderman");
     }
 
+    @Test
+    @SneakyThrows
+    public void whenGeSuperHeroFilterByNameThenReturnSuperHerMatchNameFilter() {
+
+        List<SuperHeroDTO> superHeroes = getHeroes()
+                .stream().map(superHero -> new SuperHeroDTO(superHero.getId(),superHero.getFirstName(),
+                        superHero.getSuperHeroName())).collect(Collectors.toList());
+
+        Mockito.when(superHeroFacade.getSuperHeroesByName(Mockito.anyString()))
+                .thenReturn(new SuperHeroesDTO(superHeroes));
+
+
+        ResultActions resultActions = mockMvc.perform(MockMvcRequestBuilders
+                .get("/api/superHeroes/filterBy/man")
+                .accept(MediaType.APPLICATION_JSON_VALUE))
+                .andExpect(status().isOk());
+
+        SuperHeroesDTO response = mapper.readValue(resultActions.andReturn()
+                .getResponse().getContentAsString(), SuperHeroesDTO.class);
+
+        // 3 superHeroes contains man
+        Assertions.assertEquals(response.getSuperHeroes().size(), 3);
+    }
+
+    @Test
+    @SneakyThrows
+    public void whenGeSuperHeroByIdAndNotExistsThenReturnNotFound() {
+
+        Mockito.when(superHeroFacade.getSuperHeroById(Mockito.anyLong()))
+                .thenThrow(new SuperHeroNotFoundException(Mockito.anyLong()));
+
+       mockMvc.perform(MockMvcRequestBuilders.get("/api/superHeroes/1")
+                .accept(MediaType.APPLICATION_JSON_VALUE))
+                .andExpect(status().isNotFound());
+    }
 
 
     private List<SuperHero> getHeroes() {
